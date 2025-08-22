@@ -15,7 +15,6 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    debugger
     terminate_session
     redirect_to new_session_path
   end

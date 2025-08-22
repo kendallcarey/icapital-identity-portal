@@ -24,7 +24,7 @@
 
   <body>
   <% if authenticated? %>
-    <%= button_to "Log out", session_path, method: :delete, class: "btn btn-secondary" %>
+    <%= button_to "Log out", destroy_session_path, method: :delete, class: "btn btn-secondary" %>
   <% end %>
     <%= yield %>
   </body>
