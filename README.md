@@ -24,4 +24,6 @@ I was also able to quickly add authentication with Rails 8 new command `rails g 
 ## If I had more time
 I would make address a separate table.
 I would add better styling
+I started adding the ssn field. I was excited to use built in encryption in the extra points section. I had to use non-deterministic for querying but I never quite got it to work. You can see the remnants in comments
+
 

@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   get    "/login",  to: "sessions#new",     as: :new_session
   post   "/login",  to: "sessions#create",  as: :session
   delete "/logout", to: "sessions#destroy", as: :destroy_session
-  resource :session
+  resource :session, only: %i[new create destroy]
   resources :passwords, param: :token
   resources :investors
   resources :registrations, only: %i[new create]

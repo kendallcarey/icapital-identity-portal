@@ -21,37 +21,36 @@ class InvestorsController < ApplicationController
 
   # POST /investors or /investors.json
   def create
-    attrs = investor_params.dup
-    docs  = Array(attrs.delete(:documents)).compact
-    debugger
     ActiveRecord::Base.transaction do
-      @investor = Investor.where(
-        "LOWER(first_name) = ? AND LOWER(last_name) = ? AND ssn = ?",
-        attrs[:first_name].to_s.downcase,
-        attrs[:last_name].to_s.downcase,
-        attrs[:ssn]
-      ).first
-
-      if @investor
-        @investor.assign_attributes(attrs.slice(:street_address, :state, :zip, :phone, :dob))
-        @investor.save!
-        @investor.documents.attach(docs) if docs.any?
-        notice = "Existing investor updated. Enter the next investor."
-      else
-        @investor = Investor.new(attrs)
-        @investor.save!
-        @investor.documents.attach(docs) if docs.any?
-        notice = "Investor created. Enter the next investor."
-      end
+      # TODO: fix the querying to find the investor with the encrypted ssn field
+      # @investor = Investor.find_by(
+      #   first_name: investor_params[:first_name].to_s.strip.downcase,
+      #   last_name:  investor_params[:last_name].to_s.strip.downcase,
+      #   ssn:        investor_params[:ssn]
+      # )
+      #
+      # if @investor
+      #   @investor.assign_attributes(investor_params.slice(:street_address, :state, :zip, :phone, :dob))
+      #   @investor.documents.attach(docs) if docs.any?
+      #   @investor.save!
+      #   notice = "Existing investor updated. Enter the next investor."
+      # else
+      #   @investor = Investor.new(investor_params)
+      #   @investor.documents.attach(docs) if docs.any?
+      #   @investor.save!
+      #   notice = "Investor created. Enter the next investor."
+      # end
+      #
+      @investor = Investor.new(investor_params)
 
       respond_to do |format|
-        format.html { redirect_to new_investor_path, notice: notice }
-        format.json { render :show, status: :created, location: @investor }
-      end
-    rescue ActiveRecord::RecordInvalid
-      respond_to do |format|
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @investor.errors, status: :unprocessable_entity }
+        if @investor.save
+          format.html { redirect_to @investor, notice: "Investor was successfully created." }
+          format.json { render :show, status: :created, location: @investor }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @investor.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
