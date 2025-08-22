@@ -1,0 +1,59 @@
+<%= form_with(model: investor) do |form| %>
+  <% if investor.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(investor.errors.count, "error") %> prohibited this investor from being saved:</h2>
+
+      <ul>
+        <% investor.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :first_name, style: "display: block" %>
+    <%= form.text_field :first_name %>
+  </div>
+
+  <div>
+    <%= form.label :last_name, style: "display: block" %>
+    <%= form.text_field :last_name %>
+  </div>
+
+  <div>
+    <%= form.label :dob, style: "display: block" %>
+    <%= form.date_field :dob, max: Date.today %>
+  </div>
+
+  <div>
+    <%= form.label :phone, style: "display: block" %>
+    <%= form.text_field :phone %>
+  </div>
+
+  <div>
+    <%= form.label :street_address, style: "display: block" %>
+    <%= form.text_field :street_address %>
+  </div>
+
+  <div>
+    <%= form.label :state, style: "display: block" %>
+    <%= form.text_field :state %>
+  </div>
+
+  <div>
+    <%= form.label :zip, style: "display: block" %>
+    <%= form.text_field :zip %>
+  </div>
+
+  <div>
+    <%= form.label :documents, style: "display: block" %>
+    <%= form.file_field :documents, multiple: true %>
+    <br>
+    <small>*Must choose at least one</small>
+  </div>
+  <br>
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

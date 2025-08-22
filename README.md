@@ -1,2 +1,3 @@
-# icapital-identity-portal
+# iCapital-identity-portal
 iCapital Challenge
+
