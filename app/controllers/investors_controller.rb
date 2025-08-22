@@ -21,20 +21,35 @@ class InvestorsController < ApplicationController
 
   # POST /investors or /investors.json
   def create
-    @investor = Investor.new(investor_params)
+    attrs = investor_params.dup
+    docs  = Array(attrs.delete(:documents)).compact
+    debugger
+    ActiveRecord::Base.transaction do
+      @investor = Investor.where(
+        "LOWER(first_name) = ? AND LOWER(last_name) = ? AND ssn = ?",
+        attrs[:first_name].to_s.downcase,
+        attrs[:last_name].to_s.downcase,
+        attrs[:ssn]
+      ).first
 
-    existing = Investor.where(
-      "lower(first_name) = ? AND lower(last_name) = ? AND dob = ?",
-      investor_params[:first_name].to_s.downcase,
-      investor_params[:last_name].to_s.downcase,
-      investor_params[:dob]
-    ).first
-
-    respond_to do |format|
-      if @investor.save
-        format.html { redirect_to @investor, notice: "Investor was successfully created." }
-        format.json { render :show, status: :created, location: @investor }
+      if @investor
+        @investor.assign_attributes(attrs.slice(:street_address, :state, :zip, :phone, :dob))
+        @investor.save!
+        @investor.documents.attach(docs) if docs.any?
+        notice = "Existing investor updated. Enter the next investor."
       else
+        @investor = Investor.new(attrs)
+        @investor.save!
+        @investor.documents.attach(docs) if docs.any?
+        notice = "Investor created. Enter the next investor."
+      end
+
+      respond_to do |format|
+        format.html { redirect_to new_investor_path, notice: notice }
+        format.json { render :show, status: :created, location: @investor }
+      end
+    rescue ActiveRecord::RecordInvalid
+      respond_to do |format|
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @investor.errors, status: :unprocessable_entity }
       end
@@ -70,6 +85,6 @@ class InvestorsController < ApplicationController
     end
 
     def investor_params
-      params.expect(investor: [ :first_name, :last_name, :dob, :phone, :street_address, :state, :zip, documents: [] ])
+      params.expect(investor: [ :first_name, :last_name, :dob, :phone, :street_address, :state, :zip, :ssn, documents: [] ])
     end
 end
